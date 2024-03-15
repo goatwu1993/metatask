@@ -38,16 +38,12 @@ func NewGenerator(
 	return &Generator{
 		metataskfile: metataskfile,
 		l:            l,
-		adapters: []AdapaterInterface{
-			&NpmAdapter{
-				npmFile: "package.json",
-				l:       l,
-				dryRun:  dryRun,
-			},
-			NewMakefileAdapter(l, "Makefile",
-				"", "", dryRun),
-		},
+		adapters:     []AdapaterInterface{},
 	}
+}
+
+func (g *Generator) AddAdapter(a AdapaterInterface) {
+	g.adapters = append(g.adapters, a)
 }
 
 func (g *Generator) Generate() error {

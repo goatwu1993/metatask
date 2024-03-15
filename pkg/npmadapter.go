@@ -18,6 +18,14 @@ type AdaptConfig struct {
 	IgnoreNotFound bool
 }
 
+func NewNpmAdapter(l *logrus.Logger, npmFile string, dryRun bool) *NpmAdapter {
+	return &NpmAdapter{
+		l:       l,
+		npmFile: npmFile,
+		dryRun:  dryRun,
+	}
+}
+
 type NpmPackageJson struct {
 	Scripts map[string]string `json:"scripts"`
 	// preserve any other fields

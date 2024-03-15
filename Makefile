@@ -13,11 +13,11 @@ lint: ## Lint the code
 
 .PHONY: package.json
 package.json: ## Create a package.json file
-	go run main.go generate
+	go run main.go generate --package-json package.json
 
 .PHONY: Makefile
 Makefile: ## Create a Makefile
-	go run main.go generate
+	go run main.go generate --makefile Makefile
 
 .PHONY: metatask
 metatask: ## Build the metatask binary

@@ -2,12 +2,12 @@
     "author": "peter_wu",
     "name": "test",
     "scripts": {
-        "Makefile": "go run main.go generate",
+        "Makefile": "go run main.go generate --makefile Makefile",
         "build": "go build",
         "donttouchme": "echo 'I am not a toy!'",
         "format": "go fmt",
         "lint": "golangci-lint run",
         "metatask": "go build -o metatask main.go",
-        "package.json": "go run main.go generate"
+        "package.json": "go run main.go generate --package-json package.json"
     }
 }

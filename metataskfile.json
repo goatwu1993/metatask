@@ -17,12 +17,12 @@
     },
     {
       "name": "package.json",
-      "script": "go run main.go generate",
+      "script": "go run main.go generate --package-json package.json",
       "description": "Create a package.json file"
     },
     {
       "name": "Makefile",
-      "script": "go run main.go generate",
+      "script": "go run main.go generate --makefile Makefile",
       "description": "Create a Makefile"
     },
     {

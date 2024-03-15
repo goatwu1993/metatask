@@ -23,6 +23,18 @@ func main() {
 			dryRun, _ := cmd.Flags().GetBool("dry-run")
 			l := logrus.New()
 			g := pkg.NewGenerator(l, "metataskfile.json", dryRun)
+			makefile, _ := cmd.Flags().GetString("makefile")
+			if makefile != "" {
+				g.AddAdapter(pkg.NewMakefileAdapter(l, makefile, "", "", dryRun))
+			}
+			npm, _ := cmd.Flags().GetString("package-json")
+			if npm != "" {
+				g.AddAdapter(pkg.NewNpmAdapter(
+					l,
+					npm,
+					dryRun,
+				))
+			}
 
 			err := g.Generate()
 			if err != nil {
@@ -33,6 +45,8 @@ func main() {
 	}
 	// add a dry run flag to the generate command
 	generateSubCmd.Flags().BoolP("dry-run", "d", false, "dry run")
+	generateSubCmd.Flags().StringP("makefile", "m", "", "makefile")
+	generateSubCmd.Flags().StringP("package-json", "n", "", "npm")
 
 	versionSubCmd := &cobra.Command{
 		Use:   "version",
