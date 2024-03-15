@@ -1,0 +1,34 @@
+{
+  "scripts": [
+    { 
+      "name": "format",
+      "script" : "go fmt",
+      "description": "Format the code"
+    },
+    {
+      "name": "build",
+      "script": "go build",
+      "description": "Build the code"
+    },
+    {
+      "name": "lint",
+      "script": "golangci-lint run",
+      "description": "Lint the code"
+    },
+    {
+      "name": "package.json",
+      "script": "go run main.go generate",
+      "description": "Create a package.json file"
+    },
+    {
+      "name": "Makefile",
+      "script": "go run main.go generate",
+      "description": "Create a Makefile"
+    },
+    {
+      "name": "metatask",
+      "script": "go build -o metatask main.go",
+      "description": "Build the metatask binary"
+    }
+  ]
+}
