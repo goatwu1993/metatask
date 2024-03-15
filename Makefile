@@ -23,6 +23,10 @@ Makefile: ## Create a Makefile
 all: ## Run all the scripts
 	go run main.go generate --package-json package.json --makefile Makefile
 
+.PHONY: install
+install: ## build the binary and copy to ~/.local/bin/
+	go build -o ~/.local/bin/metatask main.go
+
 .PHONY: metatask
 metatask: ## Build the metatask binary
 	go build -o metatask main.go

@@ -31,6 +31,11 @@
       "description": "Run all the scripts"
     },
     {
+      "name": "install",
+      "description": "build the binary and copy to ~/.local/bin/",
+      "script": "go build -o ~/.local/bin/metatask main.go"
+    },
+    {
       "name": "metatask",
       "script": "go build -o metatask main.go",
       "description": "Build the metatask binary"
