@@ -19,6 +19,10 @@ package.json: ## Create a package.json file
 Makefile: ## Create a Makefile
 	go run main.go generate --makefile Makefile
 
+.PHONY: all
+all: ## Run all the scripts
+	go run main.go generate --package-json package.json --makefile Makefile
+
 .PHONY: metatask
 metatask: ## Build the metatask binary
 	go build -o metatask main.go
