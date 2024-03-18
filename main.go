@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"os"
 	"runtime"
+	"strings"
 
 	"metatask/pkg"
-	adapters "metatask/pkg/adapters"
 
 	"github.com/sirupsen/logrus"
 	cobra "github.com/spf13/cobra"
@@ -15,6 +15,8 @@ import (
 const (
 	DEFAULT_YAML_FILE = "metatask.yml"
 )
+
+var debug bool
 
 func checkIfFilePathExists(filePath string) bool {
 	if _, err := os.Stat(filePath); err == nil {
@@ -41,29 +43,49 @@ func checkInputFileOrDefaultYamlFileIsRegularFileAndGetFileName(inputFileName st
 
 func checkIsRegularFile(filePath string) error {
 	// if given file path exists and is not a directory
-	//if fileInfo, err := os.Stat(filePath); err == nil {
-	//    return !fileInfo.IsDir()
+	//if fileDebug, err := os.Stat(filePath); err == nil {
+	//    return !fileDebug.IsDir()
 	//}
-	fileInfo, err := os.Stat(filePath)
+	fileDebug, err := os.Stat(filePath)
 	if err != nil {
 		return fmt.Errorf("file path does not exist: %s", filePath)
 	}
-	if fileInfo.IsDir() {
+	if fileDebug.IsDir() {
 		return fmt.Errorf("file path is a directory: %s", filePath)
 	}
 	// check if the file is a textfile, not a binary file
-	if !fileInfo.Mode().IsRegular() {
+	if !fileDebug.Mode().IsRegular() {
 		return fmt.Errorf("file path is not a regular file: %s", filePath)
 	}
 	return nil
 }
 
 func main() {
-	cmd := &cobra.Command{
-		Use:   "metatask",
-		Short: "metatask",
-		Long:  `metatask`,
+	l := logrus.New()
+	var verbosity string
+
+	rootCmd := &cobra.Command{
+		Use:   "myapp",
+		Short: "My application",
+		PersistentPreRun: func(cmd *cobra.Command, args []string) {
+			// Adjust logging level based on verbosity flag
+			switch strings.ToLower(verbosity) {
+			case "":
+				l.SetLevel(logrus.WarnLevel)
+			case "v":
+				l.SetLevel(logrus.InfoLevel)
+			case "vv":
+				l.SetLevel(logrus.DebugLevel)
+			case "vvv":
+				l.SetLevel(logrus.TraceLevel)
+			default:
+				l.SetLevel(logrus.WarnLevel)
+			}
+			fmt.Println("verbosity: ", verbosity)
+		},
 	}
+
+	rootCmd.PersistentFlags().StringVarP(&verbosity, "verbosity", "v", "", "verbosity level (v, vv, vvv)")
 	generateSubCmd := &cobra.Command{
 		Use:   "generate",
 		Short: "generate a new project",
@@ -71,7 +93,6 @@ func main() {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			dryRun, _ := cmd.Flags().GetBool("dry-run")
 			infile, _ := cmd.Flags().GetString("in-file")
-			l := logrus.New()
 			infile, err := checkInputFileOrDefaultYamlFileIsRegularFileAndGetFileName(infile)
 			if err != nil {
 				return err
@@ -79,30 +100,6 @@ func main() {
 			// if infile is not provided, use the default
 			g := pkg.NewGenerator(l, infile, dryRun)
 			//makefile, _ := cmd.Flags().GetString("makefile")
-			outputMakefiles, _ := cmd.Flags().GetStringSlice("output-makefile")
-			for _, makefile := range outputMakefiles {
-				if makefile != "" {
-					g.AddAdapter(adapters.NewMakefileAdapter(
-						l,
-						makefile,
-						dryRun,
-						"",
-						"",
-					))
-				}
-			}
-			//packageJson, _ := cmd.Flags().GetString("package-json")
-			outputPackageJsons, _ := cmd.Flags().GetStringSlice("output-package-json")
-			for _, packageJson := range outputPackageJsons {
-				if packageJson != "" {
-					g.AddAdapter(adapters.NewNpmAdapter(
-						l,
-						packageJson,
-						dryRun,
-					))
-				}
-			}
-
 			err = g.Generate()
 			if err != nil {
 				return err
@@ -112,6 +109,7 @@ func main() {
 	}
 	generateSubCmd.Flags().StringP("in-file", "i", "", "input file")
 	generateSubCmd.Flags().BoolP("dry-run", "d", false, "dry run")
+	// debug
 	generateSubCmd.Flags().StringSliceP("output-makefile", "m", []string{}, "makefile")
 	generateSubCmd.Flags().StringSliceP("output-package-json", "n", []string{}, "npm")
 	// sync command
@@ -126,10 +124,13 @@ func main() {
 		},
 	}
 
-	cmd.AddCommand(generateSubCmd)
-	cmd.AddCommand(versionSubCmd)
-	err := cmd.Execute()
+	rootCmd.AddCommand(generateSubCmd)
+	rootCmd.AddCommand(versionSubCmd)
+	// debug
+	rootCmd.Flags().BoolP("debug", "D", false, "debug")
+
+	err := rootCmd.Execute()
 	if err != nil {
-		cmd.Println(err)
+		rootCmd.Println(err)
 	}
 }

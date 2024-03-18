@@ -36,13 +36,13 @@ func NewMakefileAdapter(l *logrus.Logger, makefilePath string, dryRun bool, star
 	}
 }
 
-func (ma *MakefileAdapter) GenerateFromMetaTaskFile(m *schema.FileRoot, c *AdaptConfig) error {
-	ma.l.Info("updating makefile: ", ma.makefilePath)
+func (ma *MakefileAdapter) GenerateFromMetaTaskFile(m *schema.TreeRoot, c *AdaptConfig) error {
+	ma.l.Debug("updating makefile: ", ma.makefilePath)
 	// Check if the file exists
 	if _, err := os.Stat(ma.makefilePath); os.IsNotExist(err) {
 		//if c.IgnoreNotFound {
 		ma.l.Debug("Ignoring not found")
-		ma.l.Info("Creating file: ", ma.makefilePath)
+		ma.l.Debug("Creating file: ", ma.makefilePath)
 		_, err = os.Create(ma.makefilePath)
 		if err != nil {
 			ma.l.Error("Error creating file: ", ma.makefilePath)
@@ -86,7 +86,7 @@ func (ma *MakefileAdapter) GenerateFromMetaTaskFile(m *schema.FileRoot, c *Adapt
 		originalFile = originalFile[:start] + section + originalFile[end+len(ma.endSection):]
 	}
 	if ma.dryRun {
-		ma.l.Info("Dry run, not writing to file")
+		ma.l.Debug("Dry run, not writing to file")
 		fmt.Println(originalFile)
 	} else {
 		err = os.WriteFile(ma.makefilePath, []byte(originalFile), 0644)
@@ -99,7 +99,7 @@ func (ma *MakefileAdapter) GenerateFromMetaTaskFile(m *schema.FileRoot, c *Adapt
 	return nil
 }
 
-func (n *MakefileAdapter) GenerateSection(m *schema.FileRoot) string {
+func (n *MakefileAdapter) GenerateSection(m *schema.TreeRoot) string {
 	// Generate the section
 	allPhonies := ""
 	// m.Scripts is a map[string]string

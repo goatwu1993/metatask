@@ -29,8 +29,8 @@ type NpmPackageJson struct {
 	// preserve any other fields
 }
 
-func (n *NpmAdapter) GenerateFromMetaTaskFile(m *schema.FileRoot, c *AdaptConfig) error {
-	n.l.Info("updating npm file: ", n.npmFile)
+func (n *NpmAdapter) GenerateFromMetaTaskFile(m *schema.TreeRoot, c *AdaptConfig) error {
+	n.l.Debug("updating npm file: ", n.npmFile)
 	// Check if the file exists
 	if _, err := os.Stat(n.npmFile); os.IsNotExist(err) {
 		if c.IgnoreNotFound {
@@ -75,11 +75,11 @@ func (n *NpmAdapter) GenerateFromMetaTaskFile(m *schema.FileRoot, c *AdaptConfig
 
 	// Write the updated JSON content back to the file
 	if n.dryRun {
-		n.l.Info("Dry run, not writing to file")
+		n.l.Debug("Dry run, not writing to file")
 		fmt.Println(string(updatedJSON))
 		return nil
 	}
-	n.l.Info("Updated tasks in package.json")
+	n.l.Debug("Updated tasks in package.json")
 	if err := os.WriteFile(n.npmFile, updatedJSON, 0644); err != nil {
 		n.l.Error("Error writing to file: ", err)
 		return err

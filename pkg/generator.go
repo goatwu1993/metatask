@@ -9,6 +9,7 @@ import (
 	"metatask/pkg/schema"
 
 	"github.com/sirupsen/logrus"
+	yaml "gopkg.in/yaml.v2"
 )
 
 type Generator struct {
@@ -35,32 +36,47 @@ func (g *Generator) AddAdapter(a adapters.AdapaterInterface) {
 }
 
 func (g *Generator) Generate() error {
-	g.l.Info("Generating a new project from:", g.metatask)
+	g.l.Debug("Generating a new project from:", g.metatask)
 	// check if the file exists
 	// if it does, return an error
 	// for all of the adapters, generate the project
-	var m schema.FileRoot
+	// init an empty tree root
+	fr := schema.FileRoot{}
+	tr := schema.TreeRoot{}
 	fileReader, err := os.Open(g.metatask)
 	if err != nil {
 		g.l.Error("Error opening file: ", err)
 		return err
 	}
 	defer fileReader.Close()
-	g.parsor = NewV1YamlParsorm(g.l)
-	g.parsor.Parse(fileReader, &m, &ParsorConfig{})
-	for k, _ := range m.Tasks {
-		g.l.Info("Adding task: ", k)
+	g.parsor = NewV1YamlParsor(g.l)
+	err = g.parsor.Parse(fileReader, &tr, &fr, &ParsorConfig{})
+	if err != nil {
+		return err
 	}
+
+	// dump the tree root to metatask-lock.yaml
+	file, err := os.Create("metatask-lock.yaml")
+	if err != nil {
+		g.l.Error("Error creating file: ", err)
+		return err
+	}
+	defer file.Close()
+	err = yaml.NewEncoder(file).Encode(&tr)
+	if err != nil {
+		g.l.Error("Error encoding file: ", err)
+		return err
+	}
+
 	if len(g.adapters) == 0 {
-		g.l.Info("No adapters found, auto generating targets")
-		err = g.AutoTargetWithGivenRoot(&m)
+		err = g.AutoTargetWithGivenRoot(&tr, &schema.FileRoot{})
 		if err != nil {
 			return err
 		}
 	}
 
 	for _, a := range g.adapters {
-		err := a.GenerateFromMetaTaskFile(&m, &adapters.AdaptConfig{
+		err := a.GenerateFromMetaTaskFile(&tr, &adapters.AdaptConfig{
 			IgnoreNotFound: false,
 		})
 		if err != nil {
@@ -71,10 +87,10 @@ func (g *Generator) Generate() error {
 	return nil
 }
 
-func (g *Generator) AutoTargetWithGivenRoot(root *schema.FileRoot) error {
+func (g *Generator) AutoTargetWithGivenRoot(tr *schema.TreeRoot, fr *schema.FileRoot) error {
 	// for each of the adapters, check if the adapter has a target
 	// if it does, add it to the root
-	for _, s := range root.Syncs {
+	for _, s := range fr.Syncs {
 		switch strings.ToLower(s.FileType) {
 		case "makefile":
 			g.AddAdapter(adapters.NewMakefileAdapter(

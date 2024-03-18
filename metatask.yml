@@ -2,9 +2,14 @@ tasks:
   - name: format
     script: go fmt
     description: Format the code
+    dependsOn:
+      -  lint
   - name: build
     script: go build
     description: Build the code
+    dependsOn:
+      - format
+      - lint
   - name: lint
     script: golangci-lint run
     description: Lint the code
