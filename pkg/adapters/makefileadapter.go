@@ -36,7 +36,7 @@ func NewMakefileAdapter(l *logrus.Logger, makefilePath string, dryRun bool, star
 	}
 }
 
-func (ma *MakefileAdapter) GenerateFromMetaTaskFile(m *schema.MetaTaskRoot, c *AdaptConfig) error {
+func (ma *MakefileAdapter) GenerateFromMetaTaskFile(m *schema.FileRoot, c *AdaptConfig) error {
 	ma.l.Info("updating makefile: ", ma.makefilePath)
 	// Check if the file exists
 	if _, err := os.Stat(ma.makefilePath); os.IsNotExist(err) {
@@ -99,11 +99,11 @@ func (ma *MakefileAdapter) GenerateFromMetaTaskFile(m *schema.MetaTaskRoot, c *A
 	return nil
 }
 
-func (n *MakefileAdapter) GenerateSection(m *schema.MetaTaskRoot) string {
+func (n *MakefileAdapter) GenerateSection(m *schema.FileRoot) string {
 	// Generate the section
 	allPhonies := ""
 	// m.Scripts is a map[string]string
-	for _, v := range m.Scripts {
+	for _, v := range m.Tasks {
 		// ignore Makefile itself
 		// user should probably avoid the circular dependency
 		allPhonies += ".PHONY: " + v.Name + "\n" + v.Name + ": ## " + v.Description + "\n" + "\t" + v.Command + "\n\n"

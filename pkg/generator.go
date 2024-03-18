@@ -39,7 +39,7 @@ func (g *Generator) Generate() error {
 	// check if the file exists
 	// if it does, return an error
 	// for all of the adapters, generate the project
-	var m schema.MetaTaskRoot
+	var m schema.FileRoot
 	fileReader, err := os.Open(g.metatask)
 	if err != nil {
 		g.l.Error("Error opening file: ", err)
@@ -48,6 +48,9 @@ func (g *Generator) Generate() error {
 	defer fileReader.Close()
 	g.parsor = NewV1YamlParsorm(g.l)
 	g.parsor.Parse(fileReader, &m, &ParsorConfig{})
+	for k, _ := range m.Tasks {
+		g.l.Info("Adding task: ", k)
+	}
 	if len(g.adapters) == 0 {
 		g.l.Info("No adapters found, auto generating targets")
 		err = g.AutoTargetWithGivenRoot(&m)
@@ -68,7 +71,7 @@ func (g *Generator) Generate() error {
 	return nil
 }
 
-func (g *Generator) AutoTargetWithGivenRoot(root *schema.MetaTaskRoot) error {
+func (g *Generator) AutoTargetWithGivenRoot(root *schema.FileRoot) error {
 	// for each of the adapters, check if the adapter has a target
 	// if it does, add it to the root
 	for _, s := range root.Syncs {

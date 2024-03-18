@@ -1,4 +1,4 @@
-scripts:
+tasks:
   - name: format
     script: go fmt
     description: Format the code

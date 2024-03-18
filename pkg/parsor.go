@@ -13,7 +13,7 @@ import (
 type ParsorConfig struct{}
 
 type ParsorInterface interface {
-	ParsefromMetaTaskFile(r *schema.MetaTaskRoot, c *ParsorConfig) error
+	ParsefromMetaTaskFile(r *schema.FileRoot, c *ParsorConfig) error
 }
 
 type V1YamlParsor struct {
@@ -28,7 +28,7 @@ func NewV1YamlParsorm(
 	}
 }
 
-func (p *V1YamlParsor) Parse(reader io.Reader, r *schema.MetaTaskRoot, c *ParsorConfig) error {
+func (p *V1YamlParsor) Parse(reader io.Reader, r *schema.FileRoot, c *ParsorConfig) error {
 	// check if the file exists
 	// if it does, return an error
 	// if it fails, return an error

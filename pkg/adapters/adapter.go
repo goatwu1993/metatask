@@ -9,5 +9,5 @@ type AdaptConfig struct {
 }
 
 type AdapaterInterface interface {
-	GenerateFromMetaTaskFile(*schema.MetaTaskRoot, *AdaptConfig) error
+	GenerateFromMetaTaskFile(*schema.FileRoot, *AdaptConfig) error
 }

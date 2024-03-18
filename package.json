@@ -1,7 +1,7 @@
 {
     "author": "peter_wu",
     "name": "test",
-    "scripts": {
+    "tasks": {
         "Makefile": "go run main.go generate --output-makefile Makefile",
         "build": "go build",
         "donttouchme": "echo 'I am not a toy!'",
