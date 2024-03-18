@@ -34,7 +34,7 @@ func NewMakefileAdapter(l *logrus.Logger, makefilePath string, startSection stri
 	}
 }
 
-func (ma *MakefileAdapter) GenerateFromMetaTaskFile(m *MetaTaskFileStruct, c *AdaptConfig) error {
+func (ma *MakefileAdapter) GenerateFromMetaTaskFile(m *MetaTaskRoot, c *AdaptConfig) error {
 	ma.l.Info("updating makefile: ", ma.makefilePath)
 	// Check if the file exists
 	if _, err := os.Stat(ma.makefilePath); os.IsNotExist(err) {
@@ -85,7 +85,7 @@ func (ma *MakefileAdapter) GenerateFromMetaTaskFile(m *MetaTaskFileStruct, c *Ad
 	return nil
 }
 
-func (n *MakefileAdapter) GenerateSection(m *MetaTaskFileStruct) string {
+func (n *MakefileAdapter) GenerateSection(m *MetaTaskRoot) string {
 	// Generate the section
 	allPhonies := ""
 	// m.Scripts is a map[string]string

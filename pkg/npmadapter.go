@@ -31,7 +31,7 @@ type NpmPackageJson struct {
 	// preserve any other fields
 }
 
-func (n *NpmAdapter) GenerateFromMetaTaskFile(m *MetaTaskFileStruct, c *AdaptConfig) error {
+func (n *NpmAdapter) GenerateFromMetaTaskFile(m *MetaTaskRoot, c *AdaptConfig) error {
 	n.l.Info("updating npm file: ", n.npmFile)
 	// Check if the file exists
 	if _, err := os.Stat(n.npmFile); os.IsNotExist(err) {
