@@ -5,18 +5,17 @@ import (
 	"os"
 	"strings"
 
+	"metatask/pkg/adapters"
+	"metatask/pkg/schema"
+
 	"github.com/sirupsen/logrus"
 )
-
-type AdapaterInterface interface {
-	GenerateFromMetaTaskFile(*MetaTaskRoot, *AdaptConfig) error
-}
 
 type Generator struct {
 	metatask string
 	parsor   *V1YamlParsor
 	l        *logrus.Logger
-	adapters []AdapaterInterface
+	adapters []adapters.AdapaterInterface
 }
 
 func NewGenerator(
@@ -27,11 +26,11 @@ func NewGenerator(
 	return &Generator{
 		metatask: metatask,
 		l:        l,
-		adapters: []AdapaterInterface{},
+		adapters: []adapters.AdapaterInterface{},
 	}
 }
 
-func (g *Generator) AddAdapter(a AdapaterInterface) {
+func (g *Generator) AddAdapter(a adapters.AdapaterInterface) {
 	g.adapters = append(g.adapters, a)
 }
 
@@ -40,7 +39,7 @@ func (g *Generator) Generate() error {
 	// check if the file exists
 	// if it does, return an error
 	// for all of the adapters, generate the project
-	var m MetaTaskRoot
+	var m schema.MetaTaskRoot
 	fileReader, err := os.Open(g.metatask)
 	if err != nil {
 		g.l.Error("Error opening file: ", err)
@@ -58,7 +57,7 @@ func (g *Generator) Generate() error {
 	}
 
 	for _, a := range g.adapters {
-		err := a.GenerateFromMetaTaskFile(&m, &AdaptConfig{
+		err := a.GenerateFromMetaTaskFile(&m, &adapters.AdaptConfig{
 			IgnoreNotFound: false,
 		})
 		if err != nil {
@@ -69,13 +68,13 @@ func (g *Generator) Generate() error {
 	return nil
 }
 
-func (g *Generator) AutoTargetWithGivenRoot(root *MetaTaskRoot) error {
+func (g *Generator) AutoTargetWithGivenRoot(root *schema.MetaTaskRoot) error {
 	// for each of the adapters, check if the adapter has a target
 	// if it does, add it to the root
 	for _, s := range root.Syncs {
 		switch strings.ToLower(s.FileType) {
 		case "makefile":
-			g.AddAdapter(NewMakefileAdapter(
+			g.AddAdapter(adapters.NewMakefileAdapter(
 				g.l,
 				s.FilePath,
 				false,
@@ -83,7 +82,7 @@ func (g *Generator) AutoTargetWithGivenRoot(root *MetaTaskRoot) error {
 				"",
 			))
 		case "npm":
-			g.AddAdapter(NewNpmAdapter(
+			g.AddAdapter(adapters.NewNpmAdapter(
 				g.l,
 				s.FilePath,
 				false,

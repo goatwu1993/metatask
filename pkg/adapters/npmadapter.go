@@ -1,9 +1,11 @@
-package pkg
+package adapters
 
 import (
 	"encoding/json"
 	"fmt"
 	"os"
+
+	"metatask/pkg/schema"
 
 	"github.com/sirupsen/logrus"
 )
@@ -12,10 +14,6 @@ type NpmAdapter struct {
 	l       *logrus.Logger
 	npmFile string
 	dryRun  bool
-}
-
-type AdaptConfig struct {
-	IgnoreNotFound bool
 }
 
 func NewNpmAdapter(l *logrus.Logger, npmFile string, dryRun bool) *NpmAdapter {
@@ -31,7 +29,7 @@ type NpmPackageJson struct {
 	// preserve any other fields
 }
 
-func (n *NpmAdapter) GenerateFromMetaTaskFile(m *MetaTaskRoot, c *AdaptConfig) error {
+func (n *NpmAdapter) GenerateFromMetaTaskFile(m *schema.MetaTaskRoot, c *AdaptConfig) error {
 	n.l.Info("updating npm file: ", n.npmFile)
 	// Check if the file exists
 	if _, err := os.Stat(n.npmFile); os.IsNotExist(err) {

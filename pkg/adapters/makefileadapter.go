@@ -1,9 +1,11 @@
-package pkg
+package adapters
 
 import (
 	"fmt"
 	"os"
 	"strings"
+
+	"metatask/pkg/schema"
 
 	"github.com/sirupsen/logrus"
 )
@@ -34,7 +36,7 @@ func NewMakefileAdapter(l *logrus.Logger, makefilePath string, dryRun bool, star
 	}
 }
 
-func (ma *MakefileAdapter) GenerateFromMetaTaskFile(m *MetaTaskRoot, c *AdaptConfig) error {
+func (ma *MakefileAdapter) GenerateFromMetaTaskFile(m *schema.MetaTaskRoot, c *AdaptConfig) error {
 	ma.l.Info("updating makefile: ", ma.makefilePath)
 	// Check if the file exists
 	if _, err := os.Stat(ma.makefilePath); os.IsNotExist(err) {
@@ -97,7 +99,7 @@ func (ma *MakefileAdapter) GenerateFromMetaTaskFile(m *MetaTaskRoot, c *AdaptCon
 	return nil
 }
 
-func (n *MakefileAdapter) GenerateSection(m *MetaTaskRoot) string {
+func (n *MakefileAdapter) GenerateSection(m *schema.MetaTaskRoot) string {
 	// Generate the section
 	allPhonies := ""
 	// m.Scripts is a map[string]string

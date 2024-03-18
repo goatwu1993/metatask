@@ -5,7 +5,8 @@ import (
 	"os"
 	"runtime"
 
-	pkg "metatask/pkg"
+	"metatask/pkg"
+	adapters "metatask/pkg/adapters"
 
 	"github.com/sirupsen/logrus"
 	cobra "github.com/spf13/cobra"
@@ -81,7 +82,7 @@ func main() {
 			outputMakefiles, _ := cmd.Flags().GetStringSlice("output-makefile")
 			for _, makefile := range outputMakefiles {
 				if makefile != "" {
-					g.AddAdapter(pkg.NewMakefileAdapter(
+					g.AddAdapter(adapters.NewMakefileAdapter(
 						l,
 						makefile,
 						dryRun,
@@ -94,7 +95,7 @@ func main() {
 			outputPackageJsons, _ := cmd.Flags().GetStringSlice("output-package-json")
 			for _, packageJson := range outputPackageJsons {
 				if packageJson != "" {
-					g.AddAdapter(pkg.NewNpmAdapter(
+					g.AddAdapter(adapters.NewNpmAdapter(
 						l,
 						packageJson,
 						dryRun,

@@ -6,12 +6,14 @@ import (
 
 	"github.com/sirupsen/logrus"
 	yaml "gopkg.in/yaml.v2"
+
+	"metatask/pkg/schema"
 )
 
 type ParsorConfig struct{}
 
 type ParsorInterface interface {
-	ParsefromMetaTaskFile(r *MetaTaskRoot, c *ParsorConfig) error
+	ParsefromMetaTaskFile(r *schema.MetaTaskRoot, c *ParsorConfig) error
 }
 
 type V1YamlParsor struct {
@@ -26,26 +28,7 @@ func NewV1YamlParsorm(
 	}
 }
 
-type MetaTaskScript struct {
-	Name        string `yaml:"name"`
-	Command     string `yaml:"script"`
-	Description string `yaml:"description"`
-}
-
-type SyncTarget struct {
-	FileType string `yaml:"fileType"`
-	FilePath string `yaml:"filePath"`
-}
-
-type MetaTaskRoot struct {
-	// currently the script is any map string
-	// probably not very extensive...
-	//Scripts map[string]ScriptStruct `yaml:"scripts"`
-	Scripts []MetaTaskScript `yaml:"scripts"`
-	Syncs   []SyncTarget     `yaml:"syncs"`
-}
-
-func (p *V1YamlParsor) Parse(reader io.Reader, r *MetaTaskRoot, c *ParsorConfig) error {
+func (p *V1YamlParsor) Parse(reader io.Reader, r *schema.MetaTaskRoot, c *ParsorConfig) error {
 	// check if the file exists
 	// if it does, return an error
 	// if it fails, return an error
