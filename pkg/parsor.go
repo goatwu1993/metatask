@@ -32,11 +32,17 @@ type MetaTaskScript struct {
 	Description string `yaml:"description"`
 }
 
+type SyncTarget struct {
+	FileType string `yaml:"fileType"`
+	FilePath string `yaml:"filePath"`
+}
+
 type MetaTaskRoot struct {
 	// currently the script is any map string
 	// probably not very extensive...
 	//Scripts map[string]ScriptStruct `yaml:"scripts"`
 	Scripts []MetaTaskScript `yaml:"scripts"`
+	Syncs   []SyncTarget     `yaml:"syncs"`
 }
 
 func (p *V1YamlParsor) Parse(reader io.Reader, r *MetaTaskRoot, c *ParsorConfig) error {

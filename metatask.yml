@@ -23,3 +23,10 @@ scripts:
   - name: metatask
     script: go build -o metatask main.go
     description: Build the metatask binary
+
+syncs:
+  - filePath: package.json
+    fileType: npm
+  - fileType: Makefile
+    filePath: Makefile
+

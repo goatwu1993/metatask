@@ -11,11 +11,31 @@ import (
 	cobra "github.com/spf13/cobra"
 )
 
+const (
+	DEFAULT_YAML_FILE = "metatask.yml"
+)
+
 func checkIfFilePathExists(filePath string) bool {
 	if _, err := os.Stat(filePath); err == nil {
 		return false
 	}
 	return true
+}
+
+func checkInputFileOrDefaultYamlFileIsRegularFileAndGetFileName(inputFileName string) (string, error) {
+	var innerInputFileName string
+	if inputFileName != "" {
+		innerInputFileName = inputFileName
+	} else {
+		innerInputFileName = DEFAULT_YAML_FILE
+	}
+	if checkIfFilePathExists(innerInputFileName) {
+		return "", fmt.Errorf("file path does not exist: %s", innerInputFileName)
+	}
+	if err := checkIsRegularFile(innerInputFileName); err != nil {
+		return "", err
+	}
+	return innerInputFileName, nil
 }
 
 func checkIsRegularFile(filePath string) error {
@@ -51,27 +71,9 @@ func main() {
 			dryRun, _ := cmd.Flags().GetBool("dry-run")
 			infile, _ := cmd.Flags().GetString("in-file")
 			l := logrus.New()
-			if infile != "" {
-				if checkIfFilePathExists(infile) {
-					return fmt.Errorf("file path does not exist: %s", infile)
-				}
-				if err := checkIsRegularFile(infile); err != nil {
-					return err
-				}
-			} else {
-				// iterate through metatask.yml, metatask.yaml,
-				for _, filename := range []string{"metatask.yml", "metatask.yaml"} {
-					if !checkIfFilePathExists(filename) {
-						infile = filename
-						break
-					}
-				}
-				if infile == "" {
-					return fmt.Errorf("no metatask.yml or metatask.yaml file found")
-				}
-				if err := checkIsRegularFile(infile); err != nil {
-					return err
-				}
+			infile, err := checkInputFileOrDefaultYamlFileIsRegularFileAndGetFileName(infile)
+			if err != nil {
+				return err
 			}
 			// if infile is not provided, use the default
 			g := pkg.NewGenerator(l, infile, dryRun)
@@ -100,21 +102,18 @@ func main() {
 				}
 			}
 
-			err := g.Generate()
+			err = g.Generate()
 			if err != nil {
 				return err
 			}
 			return nil
 		},
 	}
-	// add a dry run flag to the generate command
 	generateSubCmd.Flags().StringP("in-file", "i", "", "input file")
 	generateSubCmd.Flags().BoolP("dry-run", "d", false, "dry run")
-	//generateSubCmd.Flags().StringP("makefile", "m", "", "makefile")
-	//generateSubCmd.Flags().StringP("package-json", "n", "", "npm")
-	// multiple output makefiles and package.json
 	generateSubCmd.Flags().StringSliceP("output-makefile", "m", []string{}, "makefile")
 	generateSubCmd.Flags().StringSliceP("output-package-json", "n", []string{}, "npm")
+	// sync command
 
 	versionSubCmd := &cobra.Command{
 		Use:   "version",
