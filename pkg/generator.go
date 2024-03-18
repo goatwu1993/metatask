@@ -1,6 +1,8 @@
 package pkg
 
 import (
+	"os"
+
 	"github.com/sirupsen/logrus"
 )
 
@@ -10,7 +12,7 @@ type AdapaterInterface interface {
 
 type Generator struct {
 	metatask string
-	parsor   *YamlParsor
+	parsor   *V1YamlParsor
 	l        *logrus.Logger
 	adapters []AdapaterInterface
 }
@@ -37,8 +39,14 @@ func (g *Generator) Generate() error {
 	// if it does, return an error
 	// for all of the adapters, generate the project
 	var m MetaTaskRoot
-	g.parsor = NewYamlParsor(g.metatask, g.l)
-	g.parsor.Parse(&m, &ParsorConfig{})
+	fileReader, err := os.Open(g.metatask)
+	if err != nil {
+		g.l.Error("Error opening file: ", err)
+		return err
+	}
+	defer fileReader.Close()
+	g.parsor = NewV1YamlParsorm(g.l)
+	g.parsor.Parse(fileReader, &m, &ParsorConfig{})
 	// read the file
 
 	for _, a := range g.adapters {
