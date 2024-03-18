@@ -75,17 +75,29 @@ func main() {
 			}
 			// if infile is not provided, use the default
 			g := pkg.NewGenerator(l, infile, dryRun)
-			makefile, _ := cmd.Flags().GetString("makefile")
-			if makefile != "" {
-				g.AddAdapter(pkg.NewMakefileAdapter(l, makefile, "", "", dryRun))
+			//makefile, _ := cmd.Flags().GetString("makefile")
+			outputMakefiles, _ := cmd.Flags().GetStringSlice("output-makefile")
+			for _, makefile := range outputMakefiles {
+				if makefile != "" {
+					g.AddAdapter(pkg.NewMakefileAdapter(
+						l,
+						makefile,
+						dryRun,
+						"",
+						"",
+					))
+				}
 			}
-			npm, _ := cmd.Flags().GetString("package-json")
-			if npm != "" {
-				g.AddAdapter(pkg.NewNpmAdapter(
-					l,
-					npm,
-					dryRun,
-				))
+			//packageJson, _ := cmd.Flags().GetString("package-json")
+			outputPackageJsons, _ := cmd.Flags().GetStringSlice("output-package-json")
+			for _, packageJson := range outputPackageJsons {
+				if packageJson != "" {
+					g.AddAdapter(pkg.NewNpmAdapter(
+						l,
+						packageJson,
+						dryRun,
+					))
+				}
 			}
 
 			err := g.Generate()
@@ -98,8 +110,11 @@ func main() {
 	// add a dry run flag to the generate command
 	generateSubCmd.Flags().StringP("in-file", "i", "", "input file")
 	generateSubCmd.Flags().BoolP("dry-run", "d", false, "dry run")
-	generateSubCmd.Flags().StringP("makefile", "m", "", "makefile")
-	generateSubCmd.Flags().StringP("package-json", "n", "", "npm")
+	//generateSubCmd.Flags().StringP("makefile", "m", "", "makefile")
+	//generateSubCmd.Flags().StringP("package-json", "n", "", "npm")
+	// multiple output makefiles and package.json
+	generateSubCmd.Flags().StringSliceP("output-makefile", "m", []string{}, "makefile")
+	generateSubCmd.Flags().StringSliceP("output-package-json", "n", []string{}, "npm")
 
 	versionSubCmd := &cobra.Command{
 		Use:   "version",

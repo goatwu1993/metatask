@@ -18,7 +18,7 @@ type MakefileAdapter struct {
 	endSection   string
 }
 
-func NewMakefileAdapter(l *logrus.Logger, makefilePath string, startSection string, endSection string, dryRun bool) *MakefileAdapter {
+func NewMakefileAdapter(l *logrus.Logger, makefilePath string, dryRun bool, startSection string, endSection string) *MakefileAdapter {
 	if startSection == "" {
 		startSection = "## metatask-start"
 	}
@@ -38,12 +38,13 @@ func (ma *MakefileAdapter) GenerateFromMetaTaskFile(m *MetaTaskRoot, c *AdaptCon
 	ma.l.Info("updating makefile: ", ma.makefilePath)
 	// Check if the file exists
 	if _, err := os.Stat(ma.makefilePath); os.IsNotExist(err) {
-		if c.IgnoreNotFound {
-			ma.l.Debug("Ignoring not found")
-			return nil
-		}
-		ma.l.Error("File: ", ma.makefilePath, " does not exist")
-		return err
+		//if c.IgnoreNotFound {
+		ma.l.Debug("Ignoring not found")
+		ma.l.Info("Creating file: ", ma.makefilePath)
+		_, err = os.Create(ma.makefilePath)
+		//}
+		//ma.l.Error("File: ", ma.makefilePath, " does not exist")
+		//return err
 	}
 
 	// Read the existing package.json file
