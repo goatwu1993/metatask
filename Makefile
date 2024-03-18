@@ -13,15 +13,11 @@ lint: ## Lint the code
 
 .PHONY: package.json
 package.json: ## Create a package.json file
-	go run main.go generate --package-json package.json
+	go run main.go generate --output-package-json package.json
 
 .PHONY: Makefile
 Makefile: ## Create a Makefile
-	go run main.go generate --makefile Makefile
-
-.PHONY: all
-all: ## Run all the scripts
-	go run main.go generate --package-json package.json --makefile Makefile
+	go run main.go generate --output-makefile Makefile
 
 .PHONY: install
 install: ## build the binary and copy to ~/.local/bin/

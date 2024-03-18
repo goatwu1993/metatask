@@ -50,9 +50,12 @@ func (g *Generator) Generate() error {
 	// read the file
 
 	for _, a := range g.adapters {
-		a.GenerateFromMetaTaskFile(&m, &AdaptConfig{
+		err := a.GenerateFromMetaTaskFile(&m, &AdaptConfig{
 			IgnoreNotFound: false,
 		})
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil

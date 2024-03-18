@@ -3,7 +3,6 @@
     "name": "test",
     "scripts": {
         "Makefile": "go run main.go generate --makefile Makefile",
-        "all": "go run main.go generate --package-json package.json --makefile Makefile",
         "build": "go build",
         "donttouchme": "echo 'I am not a toy!'",
         "format": "go fmt",

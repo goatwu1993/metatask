@@ -9,14 +9,14 @@ scripts:
     script: golangci-lint run
     description: Lint the code
   - name: package.json
-    script: go run main.go generate --package-json package.json
+    script: go run main.go generate --output-package-json package.json
     description: Create a package.json file
   - name: Makefile
-    script: go run main.go generate --makefile Makefile
+    script: go run main.go generate --output-makefile Makefile
     description: Create a Makefile
-  - name: all
-    script: go run main.go generate --package-json package.json --makefile Makefile
-    description: Run all the scripts
+  #- name: all
+  #  script: go run main.go generate --output-package-json package.json --makefile Makefile
+  #  description: Run all the scripts
   - name: install
     description: build the binary and copy to ~/.local/bin/
     script: go build -o ~/.local/bin/metatask main.go

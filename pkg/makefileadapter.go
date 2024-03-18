@@ -42,9 +42,20 @@ func (ma *MakefileAdapter) GenerateFromMetaTaskFile(m *MetaTaskRoot, c *AdaptCon
 		ma.l.Debug("Ignoring not found")
 		ma.l.Info("Creating file: ", ma.makefilePath)
 		_, err = os.Create(ma.makefilePath)
-		//}
-		//ma.l.Error("File: ", ma.makefilePath, " does not exist")
-		//return err
+		if err != nil {
+			ma.l.Error("Error creating file: ", ma.makefilePath)
+			return err
+		}
+		// check if the file was created
+		if _, err := os.Stat(ma.makefilePath); os.IsNotExist(err) {
+			ma.l.Error("File was not created: ", ma.makefilePath)
+			return err
+		}
+		// check is the file is a directory
+		if fi, err := os.Stat(ma.makefilePath); err == nil && fi.IsDir() {
+			ma.l.Error("File is a directory: ", ma.makefilePath)
+			return err
+		}
 	}
 
 	// Read the existing package.json file
