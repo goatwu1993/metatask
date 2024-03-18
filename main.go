@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+	"os"
 	"runtime"
 
 	pkg "metatask/pkg"
@@ -8,6 +10,32 @@ import (
 	"github.com/sirupsen/logrus"
 	cobra "github.com/spf13/cobra"
 )
+
+func checkIfFilePathExists(filePath string) bool {
+	if _, err := os.Stat(filePath); err == nil {
+		return false
+	}
+	return true
+}
+
+func checkIsRegularFile(filePath string) error {
+	// if given file path exists and is not a directory
+	//if fileInfo, err := os.Stat(filePath); err == nil {
+	//    return !fileInfo.IsDir()
+	//}
+	fileInfo, err := os.Stat(filePath)
+	if err != nil {
+		return fmt.Errorf("file path does not exist: %s", filePath)
+	}
+	if fileInfo.IsDir() {
+		return fmt.Errorf("file path is a directory: %s", filePath)
+	}
+	// check if the file is a textfile, not a binary file
+	if !fileInfo.Mode().IsRegular() {
+		return fmt.Errorf("file path is not a regular file: %s", filePath)
+	}
+	return nil
+}
 
 func main() {
 	cmd := &cobra.Command{
@@ -21,8 +49,32 @@ func main() {
 		Long:  `generate a new project`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			dryRun, _ := cmd.Flags().GetBool("dry-run")
+			infile, _ := cmd.Flags().GetString("in-file")
 			l := logrus.New()
-			g := pkg.NewGenerator(l, "metataskfile.json", dryRun)
+			if infile != "" {
+				if checkIfFilePathExists(infile) {
+					return fmt.Errorf("file path does not exist: %s", infile)
+				}
+				if err := checkIsRegularFile(infile); err != nil {
+					return err
+				}
+			} else {
+				// iterate through metatask.yml, metatask.yaml,
+				for _, filename := range []string{"metatask.yml", "metatask.yaml"} {
+					if !checkIfFilePathExists(filename) {
+						infile = filename
+						break
+					}
+				}
+				if infile == "" {
+					return fmt.Errorf("no metatask.yml or metatask.yaml file found")
+				}
+				if err := checkIsRegularFile(infile); err != nil {
+					return err
+				}
+			}
+			// if infile is not provided, use the default
+			g := pkg.NewGenerator(l, infile, dryRun)
 			makefile, _ := cmd.Flags().GetString("makefile")
 			if makefile != "" {
 				g.AddAdapter(pkg.NewMakefileAdapter(l, makefile, "", "", dryRun))
@@ -44,6 +96,7 @@ func main() {
 		},
 	}
 	// add a dry run flag to the generate command
+	generateSubCmd.Flags().StringP("in-file", "i", "", "input file")
 	generateSubCmd.Flags().BoolP("dry-run", "d", false, "dry run")
 	generateSubCmd.Flags().StringP("makefile", "m", "", "makefile")
 	generateSubCmd.Flags().StringP("package-json", "n", "", "npm")
